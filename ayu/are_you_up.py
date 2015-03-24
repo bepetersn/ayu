@@ -4,6 +4,7 @@ are_you_up.py
 Python code to make sure a website is up.
 
 """
+from abc import abstractmethod
 import requests
 from datetime import datetime
 from time import sleep
@@ -26,8 +27,8 @@ class BaseChecker(object):
 
     """
 
-    def __init__(self, uris, sleep_time, handler):
-        self.uris = uris
+    def __init__(self, units_of_work, sleep_time, handler):
+        self.units_of_work = units_of_work
         self.sleep_time = sleep_time
         self.handler = handler
 
@@ -46,11 +47,14 @@ class BaseChecker(object):
         sleep(self.sleep_time)
 
     def check(self):
-        return map(self.handle_uri, self.uris)
+        return map(self.handle_unit_of_work, self.units_of_work)
 
-    def handle_uri(self, u):
+    @abstractmethod
+    def handle_unit_of_work(self, u):
+        pass
+
+
+class UrlChecker(BaseChecker):
+
+    def handle_unit_of_work(self, u):
         return Result(requests.get(u))
-
-
-class Checker(BaseChecker):
-    pass
