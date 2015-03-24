@@ -18,7 +18,7 @@ class Result(object):
     def __init__(self, response):
         self.response = response
         self.ok = response.status_code == requests.codes.ok
-        self.uri = response.url
+        self.unit_of_work_id = response.url
         self.time = datetime.now()
 
 

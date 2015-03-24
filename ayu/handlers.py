@@ -18,10 +18,10 @@ class BaseHandler(metaclass=ABCMeta):
 class StdOutHandler(BaseHandler):
 
     def on_up(self, result):
-        print('{} is ok...'.format(result.uri))
+        print('{} is ok...'.format(result.unit_of_work_id))
 
     def on_down(self, result):
-        print('{} is down!'.format(result.uri))
+        print('{} is down!'.format(result.unit_of_work_id))
 
 
 class CsvHandler(BaseHandler):
@@ -51,10 +51,10 @@ class LogHandler(BaseHandler):
         self.logger = logger or logging
 
     def on_up(self, result):
-        return self.logger.info('{} was up at {}'.format(result.uri, result.time))
+        return self.logger.info('{} was up at {}'.format(result.unit_of_work_id, result.time))
 
     def on_down(self, result):
-        return self.logger.warning('{} was down at {}'.format(result.uri, result.time))
+        return self.logger.warning('{} was down at {}'.format(result.unit_of_work_id, result.time))
 
 
 class DeltaHandler(BaseHandler):
@@ -69,7 +69,7 @@ class DeltaHandler(BaseHandler):
         return last_alert is None or (datetime.now() - last_alert) >= self.d
 
     def alert(self, result):
-        self._alert_times[result.uri] = datetime.now()
+        self._alert_times[result.unit_of_work_id] = datetime.now()
         return self
 
     def on_down(self, result):
@@ -81,9 +81,9 @@ class DeltaHandler(BaseHandler):
         """
 
         if self.logger is not None:
-            self.logger.warn('{} was down'.format(result.uri))
+            self.logger.warn('{} was down'.format(result.unit_of_work_id))
 
-        if self._should_alert_error_for(result.uri):
+        if self._should_alert_error_for(result.unit_of_work_id):
             self.alert(result)
 
         return self
@@ -123,7 +123,7 @@ class EmailHandler(DeltaHandler):
         We don't care when the website is up so we don't do anything.
         """
         if self.logger is not None:
-            self.logger.info('{} is up'.format(result.uri))
+            self.logger.info('{} is up'.format(result.unit_of_work_id))
 
         return self
 
@@ -136,7 +136,7 @@ class DefaultEmailHandler(EmailHandler):
                           'Reason: {}'
 
     def format_subject(self, result):
-        return self.EMAIL_SUBJECT.format(result.uri)
+        return self.EMAIL_SUBJECT.format(result.unit_of_work_id)
 
     def format_body(self, result):
-        return self.EMAIL_BODY_TEMPLATE.format(result.uri, result.response.status_code, result.response.content)
+        return self.EMAIL_BODY_TEMPLATE.format(result.unit_of_work_id, result.response.status_code, result.response.content)
